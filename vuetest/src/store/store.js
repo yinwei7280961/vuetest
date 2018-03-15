@@ -5,7 +5,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state:{
-        name:"如何使用vuex",//title名称
+        name:"vuetest",//title名称
         goodsApi:{
             minPrice : "199",//最低起送金额
             deliveryPrice : "39",//配送费

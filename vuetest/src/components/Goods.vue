@@ -16,9 +16,9 @@
                     <div class="num-click">
                         <span class="good-price">￥{{good.retailPrice}}</span>
                         <div class="click-area">
-                          <span class="less click-icon" :class="{'goods-disable': good.pieceNum == 0}" @click="onReduce(index)">-</span>
+                          <span class="less click-icon" :class="{'goods-disable':good.pieceNum == 0}" @click="onReduce(index,$event)">-</span>
                          <input class="good-num" type="text" v-model="good.pieceNum" readonly="readonly" />
-                          <span class="more click-icon" @click="onAdd(index)">+</span>
+                          <span class="more click-icon" @click="onAdd(index,$event)">+</span>
                         </div>
                     </div>
                 </div>
@@ -30,160 +30,178 @@
     <footer>
         <div class="foot-area money"><span class="money-des">合计:</span>￥{{ tatolPrice || 0 }}</div>
         <div class="foot-area peisong">配送费:￥{{goodsApi.deliveryPrice}}</div>
-        <div class="foot-area goods-submit" :class="{'goods-submit-active' :tatolPrice >= parseFloat(goodsApi.minPrice) }">
+        <div class="foot-area goods-submit" :class="{'goods-submit-active':tatolPrice >= parseFloat(goodsApi.minPrice)}">
           {{ cartStatus }}({{ tatolNum }})
         </div>
     </footer>
+    <Ball></Ball>
   </div>
 </template>
 
 <script>
 import Header from "@/components/Header.vue";
 import Scroll from "@/components/Scroll.vue";
+import Ball from "@/components/Ball.vue";
 import {mapState,mapGetters,mapMutations} from "vuex";
 export default {
-  name: 'Goods',
+  name:'Goods',
   computed:{
-//  mapState(["name","goodsApi"]),
-//  mapGetters(['tatolPrice','tatolNum']),
-    cartStatus:function(){
+    ...mapState(["name","goodsApi"]),
+    ...mapGetters(['tatolPrice','tatolNum']),
+    cartStatus(){
 			let cartStatusInfo = '';
 			if(this.tatolPrice == 0){
-				cartStatusInfo = this.goodsApi.minPrice+'元起送'
+				cartStatusInfo = `${ this.goodsApi.minPrice}元起送`
 			}else if(parseFloat(this.tatolPrice) < this.goodsApi.minPrice && parseFloat(this.tatolPrice) > 0){
-				cartStatusInfo = '还差 '+(this.goodsApi.minPrice - this.tatolPrice)+'元起送';
+				cartStatusInfo = `还差 ${this.goodsApi.minPrice - this.tatolPrice}元起送`;
 			}else{
 				cartStatusInfo = '去买单'
 			}
 			return cartStatusInfo
     },
-   
-  },
-  components:{
+// 
+},
+components:{
     Header:Header,
-    Scroll:Scroll
-  },
-  methods:{
-//  mapMutations(['goodsReduce','goodsAdd']),
-		onReduce:function(index){
+    Scroll:Scroll,
+    Ball:Ball
+},
+methods:{
+    ...mapMutations(['goodsReduce','goodsAdd']),
+		onReduce(index,e){
       
 			this.goodsReduce(index);
+			this.ball_fly(e);
 		},
-		onAdd:function(index){
+		onAdd(index){
 			this.goodsAdd(index);
+		},
+		ball_fly(e){
+//			var bound = e.target.getBoundingClientRect();
+//			console.log(bound,e)
+       var $ball=document.getElementById('ball');
+       console.log(e.pageY,e.pageX)
+       $ball.style.top = e.pageY+'px';
+        $ball.style.left = e.pageX+'px';
+        $ball.style.transition = 'left 0s, top 0s';
+        setTimeout(function(){
+            $ball.style.top = window.innerHeight+'px';
+            $ball.style.left = '0px';
+            $ball.style.transition = 'left 1s linear, top 1s ease-in';
+        },20)
 		}
-  }
+}
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 footer{
-  height: 45px;
-  display: flex;
-  color: #fff;
-  background: #000;
-  line-height: 45px;
+  height:45px;
+  display:flex;
+  color:#fff;
+  background:#000;
+  line-height:45px;
 }
 .foot-area{
-  flex-grow: 1;
+  flex-grow:1;
 }
 .money{
-  padding-left: 10px;
+  padding-left:10px;
   color:red;
 }
 .money-des{
-  font-size: 12px;
-  padding-right: 10px;
+  font-size:12px;
+  padding-right:10px;
   color:#fff;
 }
 .peisong{
-    font-style: italic;
-    color: gray;
-    font-size: 14px;
+    font-style:italic;
+    color:gray;
+    font-size:14px;
 }
 	.goods-submit{
-		height: 45px;
-		padding: 0 10px;
-		background: #999;
-		color: #fff;
+		height:45px;
+		padding:0 10px;
+		background:#999;
+		color:#fff;
 	}
 	.goods-submit-active{
-		background: #008000;
+		background:#008000;
 	}
 .goods-list{
-		height: calc(100vH - 90px);
-		overflow: hidden;
+		height:calc(100vH - 90px);
+		overflow:hidden;
   }
   
 .goodLi{
-  padding: 10px 0;
-  border-bottom: 1px solid black;
+  padding:10px 0;
+  border-bottom:1px solid black;
 }
 .goodLi:first-of-type{
-  border-top: 1px solid black;;
+  border-top:1px solid black;;
 }
 .goodLi:last-of-type{
-  border-bottom: none;
+  border-bottom:none;
 }
 .goodLi:after{
-    content: "";
-    display: block;
-    clear: both;
+    content:"";
+    display:block;
+    clear:both;
 }
 .left-img{
-  float: left;
-  width: 40%;
+  float:left;
+  width:40%;
 }
 .left-img img{
   width:100%;
 }
 .right-description{
-  padding-top: 40px;
-  float: left;
+  padding-top:40px;
+  float:left;
   width:60%;
 }
 .good-name{
-  margin-bottom: 5px;
+  margin-bottom:5px;
 }
 .good-des{
-  font-size: 12px;
-  font-style: italic;
+  font-size:12px;
+  font-style:italic;
 }
 .good-price{
-  color: #b4282d;
-  display: inline-block;
-  float: left;
+  color:#b4282d;
+  display:inline-block;
+  float:left;
 }
 .num-click{
-  overflow: hidden;
-  padding-top: 10px;
+  overflow:hidden;
+  padding-top:10px;
 }
 .click-area{
-  float: right;
+  float:right;
 }
 .click-icon{
-    display: inline-block;
-    width: 25px;
-    height: 25px;
-    text-align: center;
-    line-height: 20px;
-    border-radius: 50%;
-    cursor: pointer;
-    border: 1px solid #2bbbd4;
-    color: #fff;
-    background: #2bbbd4;
+    display:inline-block;
+    width:25px;
+    height:25px;
+    text-align:center;
+    line-height:20px;
+    border-radius:50%;
+    cursor:pointer;
+    border:1px solid #2bbbd4;
+    color:#fff;
+    background:#2bbbd4;
 }
 .good-num{
-    width: 20px;
-    text-align: center;
-    font-size: 16px;
-    outline: none;
-    border: 0;
+    width:20px;
+    text-align:center;
+    font-size:16px;
+    outline:none;
+    border:0;
 }
 .goods-disable{
-		background: #DDD;
-		border-color: #ddd;
-		cursor: not-allowed;
+		background:#DDD;
+		border-color:#ddd;
+		cursor:not-allowed;
 	}
 </style>

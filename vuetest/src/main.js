@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from '@/store/store.js' 
+import '../static/css/reset.css' 
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
@@ -17,6 +18,7 @@ Vue.config.productionTip = false
 
 new Vue({
     el: '#app',
+    router,
     store:store, //将store暴露出来，也就是把store对象挂载到整个应用中
     template: '<App></App>',
     components: { App }
